@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="XOCLUBDUBAI — Downtown Dubai nightclub. Hip-hop, Afro, amapiano & house. Thu–Sun, 11PM–4AM. Book VIP tables & suites." />
+<title>XOCLUBDUBAI — Downtown Dubai After-Dark Institution</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<style>
+:root{
+  --ink: #0b0b0b;
+  --paper: #efeee9;
+  --muted: #a5a59f;
+  --accent: #c24f20;
+  --acid: #d7ff45;
+  --line:rgba(11,11,11,.18);
+}
+*{ -webkit-font-smoothing:antialiased; }
+html{ background:var(--paper); }
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
+::selection{ background:var(--acid); color:var(--ink); }
+
+/* ---------- LAYER STACK ---------- */
+#preloader{ position:fixed; inset:0; background:#0b0b0b; z-index:1000; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.noise{
+  position:fixed; inset:0; z-index:999; pointer-events:none;
+  opacity:.03; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px 180px;
+}
+#scroll-progress{ position:fixed; top:0; left:0; right:0; height:3px; background:var(--accent); z-index:1200; transform-origin:0 50%; transform:scaleX(0); }
+#site-header{
+  position:fixed; top:14px; left:14px; right:14px; z-index:90;
+  mix-blend-mode:difference; color:#fff;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px; border:1px solid rgba(255,255,255,.25); border-radius:999px;
+  transition:background .4s ease;
+}
+#site-header.is-scrolled{ background:rgba(12,12,12,.72); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); mix-blend-mode:normal; color:var(--paper); border-color:rgba(255,255,255,.12); }
+#cursor-label{
+  position:fixed; top:0; left:0; width:82px; height:82px; border-radius:50%;
+  background:var(--acid); color:var(--ink); z-index:200; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk'; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  opacity:0; transform:translate(-50%,-50%);
+}
+#archive-preview{
+  position:fixed; top:0; left:0; width:320px; height:400px; z-index:150;
+  pointer-events:none; opacity:0; overflow:hidden; border-radius:3px;
+  transform:translate(-50%,-50%); background:#111;
+}
+#archive-preview img{ width:100%; height:100%; object-fit:cover; }
+
+/* ---------- ICONS ---------- */
+.cross{ position:relative; width:14px; height:14px; display:inline-block; }
+.cross::before,.cross::after{ content:""; position:absolute; background:currentColor; top:50%; left:50%; transform:translate(-50%,-50%); }
+.cross::before{ width:14px; height:1.5px; }
+.cross::after{ width:1.5px; height:14px; }
+
+/* ---------- HERO ---------- */
+.hero{ height:100svh; min-height:640px; background:#0b0b0b; position:relative; overflow:hidden; color:var(--paper); }
+.hero-media{ position:absolute; inset:0; overflow:hidden; }
+.hero-media video{ width:100%; height:100%; object-fit:cover; opacity:.85; }
+.hero-media::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,.82) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,.25) 100%);
+}
+.hero-topcopy{ position:absolute; top:19vh; left:0; right:0; padding:0 3vw; display:flex; justify-content:space-between; gap:2rem; z-index:3; }
+.line-mask{ overflow:hidden; display:block; }
+.line-mask > span{ display:block; }
+.hero-word{
+  position:absolute; left:2vw; right:2vw; bottom:-0.02em; z-index:4; line-height:.85; letter-spacing:-.04em;
+  font-size:clamp(76px,15.5vw,290px); font-weight:700; text-transform:uppercase; white-space:nowrap;
+}
+.hero-meta{ position:absolute; bottom:24px; left:3vw; right:3vw; z-index:5; display:flex; justify-content:space-between; align-items:end; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+
+/* ---------- INTRO ---------- */
+.intro-grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:1.5rem; }
+.intro-portrait{ clip-path:polygon(0 0,88% 0,100% 100%,10% 100%); border-radius:3px; overflow:hidden; }
+.diagonal-top{ clip-path:polygon(0 8vw,100% 0,100% 100%,0 100%); }
+.btn-pill{ border-radius:999px; }
+.card-3px{ border-radius:3px; }
+
+/* ---------- TICKER ---------- */
+.ticker{ transform:rotate(-1.2deg); background:var(--acid); margin-left:-2%; width:104%; overflow:hidden; border-top:1px solid var(--ink); border-bottom:1px solid var(--ink); padding:14px 0; }
+.ticker-track{ display:flex; width:max-content; will-change:transform; gap:0; }
+.ticker-item{ font-family:'Space Grotesk'; font-weight:700; font-size:clamp(20px,3vw,38px); text-transform:uppercase; white-space:nowrap; padding:0 1.2rem; display:flex; align-items:center; gap:2.4rem; }
+
+/* ---------- PROJECTS ---------- */
+.projects-head{ position:sticky; top:95px; z-index:20; mix-blend-mode:difference; color:#fff; }
+.project{ display:grid; grid-template-columns:repeat(12,1fr); gap:1.5rem; align-items:end; margin-bottom:14vh; }
+.project:nth-child(odd) .project-media-wrap{ grid-column:1 / span 7; }
+.project:nth-child(odd) .project-copy{ grid-column:9 / span 4; }
+.project:nth-child(even) .project-media-wrap{ grid-column:6 / span 7; order:2; }
+.project:nth-child(even) .project-copy{ grid-column:1 / span 4; order:1; text-align:right; }
+.project-media{ position:relative; border-radius:3px; overflow:hidden; aspect-ratio:16/10; background:#111; }
+.project-media video,.project-media img{ width:100%; height:100%; object-fit:cover; }
+.project-media::after{
+  content:"Open night ↗"; position:absolute; inset:auto 16px 16px auto;
+  background:var(--paper); color:var(--ink); font-family:'Space Grotesk'; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  padding:10px 16px; border-radius:999px; opacity:0; transform:translateY(8px); transition:.35s ease;
+}
+.project-media:hover::after{ opacity:1; transform:translateY(0); }
+
+/* ---------- EXPERIENCE ---------- */
+.cap-section{ background:#101010; color:var(--paper); }
+.cap-statement{ font-size:clamp(30px,4.6vw,72px); line-height:.95; letter-spacing:-.02em; text-transform:uppercase; }
+.cap-row{ position:relative; border-top:1px solid rgba(239,238,233,.18); padding:28px 0; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+.cap-row:last-child{ border-bottom:1px solid rgba(239,238,233,.18); }
+.cap-row .image{
+  position:absolute; right:18%; top:50%; width:280px; height:360px; object-fit:cover;
+  opacity:0; pointer-events:none; transform:translateY(-50%) rotate(-4deg) scale(.9); transition:.45s cubic-bezier(.16,1,.3,1); border-radius:3px; z-index:5;
+}
+.cap-row:hover .image{ opacity:1; transform:translateY(-50%) rotate(-4deg) scale(1); }
+.cap-row:hover{ padding-left:12px; }
+.cap-row{ transition:padding .35s ease; }
+
+/* ---------- PLANS ---------- */
+.plans{ display:flex; gap:1rem; }
+.plan{ flex:1; transition:flex .6s cubic-bezier(.16,1,.3,1); border:1px solid var(--line); padding:28px; min-height:460px; display:flex; flex-direction:column; justify-content:space-between; background:var(--paper); border-radius:3px; }
+.plan:hover{ flex:1.35; }
+.plan.dark-card{ background:#111; color:var(--paper); border-color:#111; }
+
+/* ---------- ARCHIVE ---------- */
+.archive-row{ position:relative; display:grid; grid-template-columns:80px 1fr auto auto; gap:1.5rem; align-items:center; padding:22px 12px; border-top:1px solid var(--line); overflow:hidden; isolation:isolate; cursor:pointer; }
+.archive-row::before{ content:""; position:absolute; inset:0; background:var(--acid); transform:scaleY(0); transform-origin:bottom; transition:transform .4s cubic-bezier(.16,1,.3,1); z-index:-1; }
+.archive-row:hover::before{ transform:scaleY(1); }
+
+/* ---------- CINEMATIC ---------- */
+.cinematic{ position:relative; height:160vh; background:#0b0b0b; overflow:hidden; }
+.cinematic-bg{ position:sticky; top:0; height:100vh; overflow:hidden; }
+.cinematic-bg img{ width:100%; height:100%; object-fit:cover; }
+.cinematic-card{ position:absolute; top:35vh; left:8vw; width:min(420px,80vw); background:var(--paper); padding:28px; border-radius:3px; z-index:5; }
+
+/* ---------- FAQ ---------- */
+.faq-a{ height:0; overflow:hidden; }
+
+/* misc */
+.outline-text{ -webkit-text-stroke:1px rgba(239,238,233,.85); color:transparent; }
+.marquee-css{ animation:marquee 18s linear infinite; }
+@keyframes marquee{ to{ transform:translateX(-50%);} }
+
+/* ---------- 2026 redesign overrides ---------- */
+.diagonal-top{ clip-path:none; }
+@media(min-width:900px){
+  .mask-polygon-alt{ clip-path:polygon(0 0,100% 4vw,100% 100%,0 100%); }
+}
+
+/* ---------- RESPONSIVE: exact breakpoints ---------- */
+@media(max-width:900px){
+  .intro-grid{ display:flex; flex-direction:column; }
+  .project{ display:flex; flex-direction:column; align-items:stretch; margin-bottom:8vh; }
+  .project:nth-child(even) .project-copy{ text-align:left; }
+  .plans{ flex-direction:column; }
+  .plan{ min-height:auto; }
+  .plan:hover{ flex:1; }
+  .hero-topcopy{ flex-direction:column; gap:1rem; }
+  .cap-row .image{ display:none; }
+  .archive-row{ grid-template-columns:50px 1fr auto; }
+  .archive-row .hide-m{ display:none; }
+  #archive-preview{ display:none; }
+}
+@media(max-width:640px){
+  #site-header{ left:8px; right:8px; padding:12px 14px; }
+  .hero-word{ font-size:clamp(56px,18vw,120px); }
+  .hero-meta{ flex-direction:column; align-items:start; gap:8px; }
+  .ticker-item{ font-size:22px; }
+  .cap-statement{ font-size:32px; }
+  .cinematic-card{ left:4vw; right:4vw; width:auto; }
+  .archive-row{ grid-template-columns:1fr auto; padding:18px 8px; }
+  .archive-row .hide-s{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+<div class="noise"></div>
+
+<!-- SVG noise filter def -->
+<svg width="0" height="0" style="position:absolute"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/></filter></svg>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="grotesk text-[#efeee9] text-[clamp(48px,10vw,140px)] font-bold leading-none tracking-tight" id="pre-count">00</div>
+  <div class="text-[#a5a59f] text-xs tracking-[.3em] uppercase mt-4">XO Club Dubai — Loading Night</div>
+  <div class="w-[220px] h-[1px] bg-white/20 mt-6 overflow-hidden"><div id="pre-bar" class="h-full w-full origin-left scale-x-0 bg-[#d7ff45]"></div></div>
+</div>
+
+<div id="cursor-label">View</div>
+<div id="archive-preview"><img id="archive-preview-img" src="" alt=""></div>
+
+<!-- Floating WhatsApp -->
+<a href="https://wa.me/971562000470?text=Hi%20XOClubDubai%2C%20I%20want%20to%20book%20a%20table%20tonight." target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
+   class="btn-pill fixed bottom-5 right-5 z-[80] flex items-center gap-2 bg-[#d7ff45] text-black text-[12px] tracking-[.12em] uppercase font-semibold px-5 py-3 shadow-lg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4 0-.5.1-.7l.4-.5c.1-.2.1-.4 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.2-.7.3-.9.9-1.1 2.2-.2 3.9a11.6 11.6 0 0 0 4.5 4.2c1.7.8 2.4.9 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2 0-.1-.2-.1-.5-.2z"/></svg>
+  WhatsApp Tables
+</a>
+
+<!-- HEADER -->
+<header id="site-header">
+  <a href="#top" class="grotesk font-bold tracking-tight text-lg">XO<span class="text-[#c24f20]">●</span>CLUB DUBAI</a>
+  <nav class="hidden md:flex gap-8 text-[12px] tracking-[.18em] uppercase">
+    <a href="#club" class="hover:opacity-60">Club</a>
+    <a href="#nights" class="hover:opacity-60">Nights</a>
+    <a href="#experience" class="hover:opacity-60">Experience</a>
+    <a href="#tables" class="hover:opacity-60">Tables</a>
+    <a href="#archive" class="hover:opacity-60">Archive</a>
+  </nav>
+  <div class="flex items-center gap-3">
+    <span class="hidden sm:inline text-[11px] tracking-[.18em] uppercase opacity-80">Open Tonight 11PM–4AM</span>
+    <a href="#tables" class="btn-pill bg-[#d7ff45] text-black text-[12px] tracking-[.12em] uppercase px-5 py-2.5 font-semibold" style="mix-blend-mode:normal">Book Table</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- ============ SECTION 1 HERO ============ -->
+<section class="hero">
+  <div class="hero-media" id="hero-media">
+    <video muted playsinline preload="metadata" autoplay loop data-aura-video-preset="play-once" src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/generated-videos/8bd0314a-9525-4a13-996e-2c37cbd9e514/1784436357607-9c22882e-f726-4971-b85d-f7b5276000ff.mp4"></video>
+  </div>
+  <div class="hero-topcopy">
+    <div class="max-w-[420px]">
+      <div class="line-mask"><span class="hero-line text-[12px] tracking-[.22em] uppercase text-[#d7ff45]">Downtown Dubai — After-dark institution</span></div>
+      <div class="line-mask mt-3"><span class="hero-line grotesk text-2xl md:text-3xl leading-tight">Sound, light & late nights. Dubai's room for hip-hop, Afro & house.</span></div>
+    </div>
+    <div class="text-right">
+      <div class="line-mask"><span class="hero-line text-[12px] tracking-[.22em] uppercase opacity-80">Est. Downtown — Thu to Sun</span></div>
+      <div class="line-mask"><span class="hero-line text-[12px] tracking-[.22em] uppercase opacity-80">11PM — 4AM / 21+</span></div>
+      <div class="line-mask mt-2"><span class="hero-line flex justify-end items-center gap-2 text-[12px] tracking-[.22em] uppercase"><span class="cross"></span> Scroll to enter</span></div>
+    </div>
+  </div>
+  <h1 class="hero-word grotesk">XOCLUB<span class="outline-text">DUBAI</span></h1>
+  <div class="hero-meta">
+    <div>N 25.1972° — E 55.2744°</div>
+    <div class="flex gap-6"><span>Hip-Hop / Afro / Amapiano / House</span><span class="text-[#d7ff45]">● This Week: Paradox — Thu</span></div>
+  </div>
+</section>
+
+<!-- ============ SECTION 2 THE CLUB ============ -->
+<section id="club" class="px-[3vw] py-[12vh] border-b" style="border-color:var(--line)">
+  <div class="flex justify-between text-[11px] tracking-[.22em] uppercase mb-10" style="color:var(--muted)">
+    <span><span class="cross mr-2"></span> 01 — The Club</span><span>Downtown Dubai, UAE</span>
+  </div>
+  <div class="intro-grid">
+    <div class="col-span-7">
+      <h2 class="grotesk font-bold leading-[.9] tracking-tight text-[clamp(38px,6vw,96px)] uppercase">
+        <span class="line-mask"><span class="intro-line">Not just a nightclub —</span></span>
+        <span class="line-mask"><span class="intro-line">a <span style="color:var(--accent)">stage</span> for the</span></span>
+        <span class="line-mask"><span class="intro-line">city after midnight.</span></span>
+      </h2>
+      <p class="mt-8 max-w-[520px] text-[17px] leading-relaxed opacity-80">XOClubDubai is Downtown's high-fidelity room: brutalist concrete, acid light, and a Funktion-One tuned for hip-hop, Afrohouse and late R&B. 900 bodies, one low ceiling, zero distance to the DJ.</p>
+      <div class="mt-10 flex gap-10">
+        <div class="stats-mini"><div class="grotesk text-5xl font-bold"><span data-count="900">0</span></div><div class="text-[11px] tracking-[.2em] uppercase mt-1" style="color:var(--muted)">Capacity</div></div>
+        <div class="stats-mini"><div class="grotesk text-5xl font-bold"><span data-count="320">0</span>+</div><div class="text-[11px] tracking-[.2em] uppercase mt-1" style="color:var(--muted)">Nights / Year</div></div>
+        <div class="stats-mini"><div class="grotesk text-5xl font-bold"><span data-count="120">0</span>+</div><div class="text-[11px] tracking-[.2em] uppercase mt-1" style="color:var(--muted)">Guest DJs</div></div>
+      </div>
+      <a href="#nights" class="btn-pill inline-flex mt-10 px-7 py-3 bg-[#0b0b0b] text-[#efeee9] text-[12px] tracking-[.15em] uppercase">Explore the nights</a>
+    </div>
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="intro-portrait aspect-[3/4]"><img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80&auto=format&fit=crop" alt="XO Club crowd"></div>
+      <div class="flex justify-between text-[11px] tracking-[.2em] uppercase" style="color:var(--muted)"><span>Main Room — 02:14 AM</span><span>Fig. 01</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 3 TICKER ============ -->
+<div class="py-10 overflow-hidden">
+  <div class="ticker">
+    <div class="ticker-track" id="ticker-track">
+      <div class="ticker-item"><span>XO Club Dubai</span><span>✦</span><span>Open Till 4AM</span><span>✦</span><span>Downtown Dubai</span><span>✦</span><span>Book Your Table</span><span>✦</span></div>
+      <div class="ticker-item"><span>XO Club Dubai</span><span>✦</span><span>Open Till 4AM</span><span>✦</span><span>Downtown Dubai</span><span>✦</span><span>Book Your Table</span><span>✦</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION 4 SIGNATURE NIGHTS ============ -->
+<section id="nights" class="px-[3vw] pb-[10vh]">
+  <div class="projects-head flex justify-between items-end py-6">
+    <h2 class="grotesk font-bold uppercase leading-none text-[clamp(40px,7vw,110px)]">Selected<br>Nights</h2>
+    <div class="text-[11px] tracking-[.22em] uppercase text-right">02 — Weekly Program<br>Thu → Sun / 11PM–4AM</div>
+  </div>
+
+  <div class="mt-12" id="project-list">
+    <article class="project" data-cursor="View">
+      <div class="project-media-wrap"><div class="project-media">
+        <video muted playsinline preload="metadata" loop data-aura-video-preset="loop-in-view" src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/generated-videos/8bd0314a-9525-4a13-996e-2c37cbd9e514/1784436916049-996a1369-4925-4293-9614-7cc8a1164acb.mp4"></video>
+      </div><div class="flex justify-between mt-3 text-[11px] tracking-[.2em] uppercase" style="color:var(--muted)"><span>P.01 — Thursday</span><span>Hip-Hop / R&B</span></div></div>
+      <div class="project-copy"><h3 class="grotesk text-4xl md:text-5xl font-bold uppercase">Paradox</h3><p class="mt-4 opacity-70">Dirty drums, sing-overs, surprise guests. The city's Thursday ritual.</p><div class="mt-4 text-[12px] tracking-[.15em] uppercase">11PM–4AM — Main Room</div></div>
+    </article>
+
+    <article class="project" data-cursor="Enter">
+      <div class="project-media-wrap"><div class="project-media">
+        <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=80&auto=format&fit=crop" alt="Velvet night">
+      </div><div class="flex justify-between mt-3 text-[11px] tracking-[.2em] uppercase" style="color:var(--muted)"><span>P.02 — Friday</span><span>Afro / Amapiano</span></div></div>
+      <div class="project-copy"><h3 class="grotesk text-4xl md:text-5xl font-bold uppercase">Velvet</h3><p class="mt-4 opacity-70">Afrohouse to amapiano, live percussion till late. Dress luminous.</p><div class="mt-4 text-[12px] tracking-[.15em] uppercase">11PM–4AM — Main + Terrace</div></div>
+    </article>
+
+    <article class="project" data-cursor="Late">
+      <div class="project-media-wrap"><div class="project-media">
+        <img src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=1200&q=80&auto=format&fit=crop" alt="Mirage night">
+      </div><div class="flex justify-between mt-3 text-[11px] tracking-[.2em] uppercase" style="color:var(--muted)"><span>P.03 — Saturday</span><span>House / Edits</span></div></div>
+      <div class="project-copy"><h3 class="grotesk text-4xl md:text-5xl font-bold uppercase">Mirage</h3><p class="mt-4 opacity-70">Peak-time house, acid strobes, CO2 at 2AM. No phones on dancefloor.</p><div class="mt-4 text-[12px] tracking-[.15em] uppercase">11PM–4AM — Main Room</div></div>
+    </article>
+
+    <article class="project" data-cursor="VIP">
+      <div class="project-media-wrap"><div class="project-media">
+        <img src="https://images.unsplash.com/photo-1571266028243-d220c6a8bd93?w=1200&q=80&auto=format&fit=crop" alt="Onyx night">
+      </div><div class="flex justify-between mt-3 text-[11px] tracking-[.2em] uppercase" style="color:var(--muted)"><span>P.04 — Sunday</span><span>Open Format</span></div></div>
+      <div class="project-copy"><h3 class="grotesk text-4xl md:text-5xl font-bold uppercase">Onyx</h3><p class="mt-4 opacity-70">Industry night. DJs b2b, low light, tables close to the booth.</p><div class="mt-4 text-[12px] tracking-[.15em] uppercase">11PM–3AM — All Rooms</div></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ SECTION 5 THE EXPERIENCE ============ -->
+<section id="experience" class="cap-section diagonal-top px-[3vw] py-[14vh]">
+  <div class="text-[11px] tracking-[.22em] uppercase mb-8 opacity-60"><span class="cross mr-2"></span> 03 — The Experience</div>
+  <h2 class="cap-statement grotesk font-bold max-w-[1100px]">
+    <span class="block cap-line">Light choreography.</span>
+    <span class="block cap-line">Bottle parades.</span>
+    <span class="block cap-line text-[#d7ff45]">Private suites.</span>
+    <span class="block cap-line">You, center stage.</span>
+  </h2>
+  <div class="mt-14">
+    <div class="cap-row"><div><div class="text-[11px] tracking-[.2em] uppercase opacity-60">01</div><div class="grotesk text-3xl md:text-5xl font-bold uppercase">VIP Tables & Decks</div></div><div class="text-[12px] tracking-[.15em] uppercase opacity-70">Main Room / Balcony</div><img class="image" src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80&auto=format&fit=crop" alt=""></div>
+    <div class="cap-row"><div><div class="text-[11px] tracking-[.2em] uppercase opacity-60">02</div><div class="grotesk text-3xl md:text-5xl font-bold uppercase">Sky Suite — 12 Guests</div></div><div class="text-[12px] tracking-[.15em] uppercase opacity-70">Private Host + Bar</div><img class="image" src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80&auto=format&fit=crop" alt=""></div>
+    <div class="cap-row"><div><div class="text-[11px] tracking-[.2em] uppercase opacity-60">03</div><div class="grotesk text-3xl md:text-5xl font-bold uppercase">Full Buyouts & Events</div></div><div class="text-[12px] tracking-[.15em] uppercase opacity-70">Brands / Labels</div><img class="image" src="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80&auto=format&fit=crop" alt=""></div>
+    <div class="cap-row"><div><div class="text-[11px] tracking-[.2em] uppercase opacity-60">04</div><div class="grotesk text-3xl md:text-5xl font-bold uppercase">Artist & DJ Bookings</div></div><div class="text-[12px] tracking-[.15em] uppercase opacity-70">Touring / Local</div><img class="image" src="https://images.unsplash.com/photo-1571266028243-d220c6a8bd93?w=800&q=80&auto=format&fit=crop" alt=""></div>
+  </div>
+</section>
+
+<!-- ============ SECTION 6 TABLES & RESERVATIONS ============ -->
+<section id="tables" class="px-[3vw] py-[12vh]">
+  <div class="flex justify-between items-end mb-10">
+    <h2 class="grotesk font-bold uppercase leading-none text-[clamp(36px,5.5vw,84px)]">Reserve<br>Your Night</h2>
+    <div class="text-[11px] tracking-[.22em] uppercase text-right" style="color:var(--muted)">04 — Reservations<br>Hover to expand</div>
+  </div>
+  <div class="plans">
+    <div class="plan">
+      <div><div class="text-[12px] tracking-[.2em] uppercase opacity-60">01 / Entry</div><h3 class="grotesk text-3xl font-bold mt-2 uppercase">General<br>Entry</h3><div class="grotesk text-5xl font-bold mt-6">150 <span class="text-lg">AED</span></div></div>
+      <ul class="text-sm opacity-70 space-y-2 mt-6"><li>— Doors before 1AM</li><li>— Main room access</li><li>— 1 welcome drink</li></ul>
+      <a href="#contact" class="btn-pill mt-8 text-center px-6 py-3 bg-[#0b0b0b] text-white text-[12px] tracking-[.15em] uppercase">Get Tickets</a>
+    </div>
+    <div class="plan">
+      <div><div class="text-[12px] tracking-[.2em] uppercase opacity-60">02 / Table</div><h3 class="grotesk text-3xl font-bold mt-2 uppercase">VIP<br>Table</h3><div class="grotesk text-5xl font-bold mt-6">2K <span class="text-lg">AED min.</span></div></div>
+      <ul class="text-sm opacity-70 space-y-2 mt-6"><li>— Up to 6 guests</li><li>— Priority entry + host</li><li>— Premium bottle menu</li></ul>
+      <a href="#contact" class="btn-pill mt-8 text-center px-6 py-3 border border-black text-[12px] tracking-[.15em] uppercase">Reserve Table</a>
+    </div>
+    <div class="plan dark-card">
+      <div><div class="text-[12px] tracking-[.2em] uppercase text-[#d7ff45]">03 / Full Experience ★</div><h3 class="grotesk text-3xl font-bold mt-2 uppercase">XO<br>Suite</h3><div class="grotesk text-5xl font-bold mt-6">8K <span class="text-lg">AED min.</span></div></div>
+      <ul class="text-sm opacity-70 space-y-2 mt-6"><li>— 12 guests, sky deck</li><li>— Dedicated server + security</li><li>— Chauffeured arrival</li></ul>
+      <a href="#contact" class="btn-pill mt-8 text-center px-6 py-3 bg-[#d7ff45] text-black font-semibold text-[12px] tracking-[.15em] uppercase">Book Suite</a>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="mt-16 grid md:grid-cols-2 gap-10">
+    <h3 class="grotesk text-3xl font-bold uppercase">Good to know</h3>
+    <div id="faq">
+      <div class="faq-q border-t py-5 cursor-pointer flex justify-between items-center" style="border-color:var(--line)"><span class="grotesk font-semibold">Dress code?</span><span class="cross"></span></div>
+      <div class="faq-a text-sm opacity-70"><p class="pb-5">Smart / statement. No shorts, flip-flops or sportswear after midnight. Management reserves entry.</p></div>
+      <div class="faq-q border-t py-5 cursor-pointer flex justify-between items-center" style="border-color:var(--line)"><span class="grotesk font-semibold">Age & ID?</span><span class="cross"></span></div>
+      <div class="faq-a text-sm opacity-70"><p class="pb-5">21+ with physical Emirates ID or passport. No exceptions.</p></div>
+      <div class="faq-q border-t border-b py-5 cursor-pointer flex justify-between items-center" style="border-color:var(--line)"><span class="grotesk font-semibold">Where are you?</span><span class="cross"></span></div>
+      <div class="faq-a text-sm opacity-70"><p class="pb-5">Downtown Dubai, 2 min from Dubai Mall. Valet from 10:30PM. Metro: Burj Khalifa / Dubai Mall.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 7 ARCHIVE ============ -->
+<section id="archive" class="px-[3vw] pb-[10vh]">
+  <div class="flex justify-between items-end mb-6">
+    <h2 class="grotesk font-bold uppercase leading-none text-[clamp(36px,5.5vw,84px)]">Archive</h2>
+    <div class="text-[11px] tracking-[.22em] uppercase" style="color:var(--muted)">05 — Past takeovers</div>
+  </div>
+  <div id="archive-list" class="border-b" style="border-color:var(--line)">
+    <div class="archive-row" data-img="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80&auto=format&fit=crop"><span class="text-sm opacity-60">038</span><span class="grotesk font-bold uppercase text-xl">New Year's Eve — sold out 900</span><span class="hide-m text-[11px] tracking-[.2em] uppercase opacity-60">Dec 2025</span><span class="hide-s text-[12px]">↗</span></div>
+    <div class="archive-row" data-img="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80&auto=format&fit=crop"><span class="text-sm opacity-60">039</span><span class="grotesk font-bold uppercase text-xl">Velvet: city takeover</span><span class="hide-m text-[11px] tracking-[.2em] uppercase opacity-60">Nov 2025</span><span class="hide-s text-[12px]">↗</span></div>
+    <div class="archive-row" data-img="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=800&q=80&auto=format&fit=crop"><span class="text-sm opacity-60">040</span><span class="grotesk font-bold uppercase text-xl">Mirage: all-night house edit</span><span class="hide-m text-[11px] tracking-[.2em] uppercase opacity-60">Oct 2025</span><span class="hide-s text-[12px]">↗</span></div>
+    <div class="archive-row" data-img="https://images.unsplash.com/photo-1571266028243-d220c6a8bd93?w=800&q=80&auto=format&fit=crop"><span class="text-sm opacity-60">041</span><span class="grotesk font-bold uppercase text-xl">Onyx b2b — local all-stars</span><span class="hide-m text-[11px] tracking-[.2em] uppercase opacity-60">Sep 2025</span><span class="hide-s text-[12px]">↗</span></div>
+    <div class="archive-row" data-img="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80&auto=format&fit=crop"><span class="text-sm opacity-60">042</span><span class="grotesk font-bold uppercase text-xl">Fashion week afterparty</span><span class="hide-m text-[11px] tracking-[.2em] uppercase opacity-60">Sep 2025</span><span class="hide-s text-[12px]">↗</span></div>
+  </div>
+</section>
+
+<!-- ============ SECTION 8 CINEMATIC ============ -->
+<section class="cinematic">
+  <div class="cinematic-bg"><img id="cinematic-img" src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/variants/df48517c-b34b-4aa2-b653-96984538305d/3840w.jpg" alt="XO Club cinematic"></div>
+  <div class="cinematic-card" id="cinematic-card">
+    <div class="text-[11px] tracking-[.22em] uppercase" style="color:var(--accent)">Tonight at XO</div>
+    <h3 class="grotesk text-4xl font-bold uppercase leading-none mt-3">See you<br>on the floor.</h3>
+    <p class="text-sm opacity-70 mt-4">Doors 11PM. Tables held till 1AM. Walk-ins on availability.</p>
+    <div class="flex gap-3 mt-6">
+      <a href="#contact" class="btn-pill flex-1 text-center px-6 py-3 bg-[#0b0b0b] text-white text-[12px] tracking-[.15em] uppercase">Book Now</a>
+      <a href="#top" class="btn-pill px-6 py-3 border border-black text-[12px] tracking-[.15em] uppercase">↑ Top</a>
+    </div>
+  </div>
+  <div class="absolute bottom-6 left-[3vw] right-[3vw] flex justify-between text-[#efeee9] text-[11px] tracking-[.22em] uppercase z-[6]"><span>XO — Downtown Dubai</span><span>21+ / 11PM–4AM</span></div>
+</section>
+
+<!-- FOOTER / CONTACT -->
+<footer id="contact" class="bg-[#0b0b0b] text-[#efeee9] px-[3vw] py-[10vh]">
+  <div class="grotesk font-bold uppercase leading-[.85] text-[clamp(54px,11vw,190px)]">Let's go<br><span class="text-[#d7ff45]">out tonight</span></div>
+  <div class="grid md:grid-cols-4 gap-8 mt-12 text-sm">
+    <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Visit</div><p>XOClubDubai<br>Downtown Dubai, UAE<br>Valet after 10:30PM</p></div>
+    <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Contact</div><p><a href="tel:+971562000470" class="hover:text-[#d7ff45]">+971 56 200 0470</a><br><a href="https://wa.me/971562000470" target="_blank" rel="noopener" class="text-[#d7ff45] hover:underline">WhatsApp us ↗</a><br><a href="mailto:ayman.mohamed.1608@gmail.com" class="hover:text-[#d7ff45]">ayman.mohamed.1608@gmail.com</a><br>@xoclubdubai</p></div>
+    <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Hours</div><p>Thu–Sun / 11PM–4AM<br>21+ ID required<br>Dress smart</p></div>
+    <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Table request</div>
+      <form id="book-form" class="flex flex-col gap-2"><input required placeholder="Name" class="bg-transparent border border-white/20 rounded-full px-4 py-2.5 outline-none focus:border-[#d7ff45]"><input required placeholder="WhatsApp" class="bg-transparent border border-white/20 rounded-full px-4 py-2.5 outline-none focus:border-[#d7ff45]"><button class="btn-pill bg-[#d7ff45] text-black font-semibold text-[12px] tracking-[.15em] uppercase px-4 py-3">Request Callback</button><span id="book-ok" class="text-[#d7ff45] text-xs hidden">Received — we reply within 15 min after 8PM.</span></form>
+    </div>
+  </div>
+  <div class="flex justify-between mt-14 pt-6 border-t border-white/15 text-[11px] tracking-[.2em] uppercase opacity-60"><span>© 2026 XOClubDubai</span><span>Downtown Dubai — 21+</span></div>
+</footer>
+</main>
+
+<script>
+// Safety net: never trap the user on the preloader (fires even if CDNs fail)
+setTimeout(function(){
+  var pre=document.getElementById('preloader');
+  if(pre && pre.style.display!=='none' && !window.__preDone){ pre.style.transition='transform .9s cubic-bezier(.76,0,.24,1)'; pre.style.transform='translateY(-100%)'; setTimeout(function(){ pre.style.display='none'; },950); }
+},4000);
+
+if(!window.gsap){ document.getElementById('preloader').style.display='none'; }
+else {
+gsap.registerPlugin(ScrollTrigger);
+
+// Lenis smooth scroll — duration 1.15, wheelMultiplier 0.9
+var lenis = null;
+if(window.Lenis){
+  lenis = new Lenis({ duration: 1.15, wheelMultiplier: 0.9, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(function(t){ lenis.raf(t*1000); });
+  gsap.ticker.lagSmoothing(0);
+}
+
+// Anchor links via lenis
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href');
+    if(id.length>1 && document.querySelector(id)){ e.preventDefault(); if(lenis){ lenis.scrollTo(id,{offset:-70}); } else { document.querySelector(id).scrollIntoView({behavior:'smooth'}); } }
+  });
+});
+
+// Preloader — power4.inOut, duration 0.9
+(function(){
+  const pre=document.getElementById('preloader'), count=document.getElementById('pre-count'), bar=document.getElementById('pre-bar');
+  const o={v:0};
+  gsap.to(bar,{scaleX:1,duration:1.4,ease:'power2.out'});
+  gsap.to(o,{v:100,duration:1.4,ease:'power2.out',onUpdate:()=>count.textContent=String(Math.round(o.v)).padStart(2,'0'),
+    onComplete:()=>{
+      window.__preDone=true;
+      gsap.to(pre,{yPercent:-100,duration:0.9,ease:'power4.inOut',onComplete:()=>{pre.style.display='none'; heroIn(); ScrollTrigger.refresh();}});
+    }});
+})();
+function heroIn(){
+  gsap.fromTo('.hero-line',{yPercent:110},{yPercent:0,duration:1.1,ease:'power4.out',stagger:.08});
+  gsap.fromTo('.hero-word',{yPercent:40,opacity:0},{yPercent:0,opacity:1,duration:1.2,ease:'power4.out'});
+}
+
+// Scroll progress scaleX 0->1
+gsap.to('#scroll-progress',{scaleX:1,ease:'none',scrollTrigger:{scrub:.3,start:0,end:'max'}});
+
+// Header is-scrolled
+ScrollTrigger.create({start:60,onUpdate:s=>{},onToggle:s=>document.getElementById('site-header').classList.toggle('is-scrolled',s.isActive)});
+
+// Hero media scrub:true (parallax + scale)
+gsap.to('#hero-media',{yPercent:18,scale:1.15,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+gsap.to('.hero-word',{yPercent:-30,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+
+// Intro stagger line-mask
+gsap.utils.toArray('.intro-line').forEach((el,i)=>{
+  gsap.fromTo(el,{yPercent:110},{yPercent:0,duration:1,ease:'power4.out',scrollTrigger:{trigger:'#club',start:'top 75%'}});
+});
+
+// Stats counters [data-count]
+document.querySelectorAll('[data-count]').forEach(el=>{
+  const target=+el.dataset.count; const o={v:0};
+  ScrollTrigger.create({trigger:el,start:'top 85%',once:true,onEnter:()=>{
+    gsap.to(o,{v:target,duration:1.6,ease:'power2.out',onUpdate:()=>el.textContent=Math.round(o.v)});
+  }});
+});
+
+// Ticker continuous xPercent -50
+gsap.to('#ticker-track',{xPercent:-50,ease:'none',duration:14,repeat:-1});
+
+// Projects scrub:1
+gsap.utils.toArray('.project').forEach(p=>{
+  const media=p.querySelector('.project-media');
+  gsap.fromTo(media,{y:60,scale:.96},{y:0,scale:1,ease:'none',scrollTrigger:{trigger:p,start:'top bottom',end:'center center',scrub:1}});
+  gsap.fromTo(p.querySelector('.project-copy'),{y:40,opacity:.2},{y:0,opacity:1,ease:'none',scrollTrigger:{trigger:p,start:'top 85%',end:'top 40%',scrub:1}});
+});
+
+// Experience statement pin + stagger
+gsap.utils.toArray('.cap-line').forEach((el,i)=>{
+  gsap.fromTo(el,{yPercent:60,opacity:0},{yPercent:0,opacity:1,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:'#experience',start:`top ${70-i*6}%`,end:'top 30%',scrub:1}});
+});
+
+// Cinematic scrub scale 1.12 -> 1
+gsap.fromTo('#cinematic-img',{scale:1.12},{scale:1,ease:'none',scrollTrigger:{trigger:'.cinematic',start:'top bottom',end:'bottom bottom',scrub:true}});
+// Cinematic card rotation 18, xPercent 120 scrub
+gsap.fromTo('#cinematic-card',{rotation:18,xPercent:120,opacity:0},{rotation:0,xPercent:0,opacity:1,ease:'none',
+  scrollTrigger:{trigger:'.cinematic',start:'top 60%',end:'center center',scrub:true}});
+
+// Cursor lerp cx += (mx-cx)*.14
+const cursor=document.getElementById('cursor-label');
+let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){ cx+=(mx-cx)*.14; cy+=(my-cy)*.14; cursor.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`; requestAnimationFrame(loop); })();
+document.querySelectorAll('[data-cursor]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.textContent=el.dataset.cursor; gsap.to(cursor,{opacity:1,scale:1,duration:.3});});
+  el.addEventListener('mouseleave',()=>gsap.to(cursor,{opacity:0,scale:.8,duration:.3}));
+});
+
+} // end else (gsap available)
+
+// Videos loop-in-view IntersectionObserver (works without gsap)
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    const v=e.target;
+    if(v.dataset.auraVideoPreset==='play-once') return; // hero plays once/autoplay
+    if(e.isIntersecting){ v.play().catch(()=>{}); } else { v.pause(); }
+  });
+},{threshold:.25});
+document.querySelectorAll('video[data-aura-video-preset="loop-in-view"]').forEach(v=>io.observe(v));
+
+// Archive preview fixed image update + opacity
+const prev=document.getElementById('archive-preview'), prevImg=document.getElementById('archive-preview-img');
+let px=0,py=0,tx=0,ty=0;
+addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;});
+(function ploop(){ px+=(tx-px)*.12; py+=(ty-py)*.12; prev.style.transform=`translate(${px}px,${py}px) translate(-50%,-50%)`; requestAnimationFrame(ploop); })();
+document.querySelectorAll('.archive-row').forEach(r=>{
+  r.addEventListener('mouseenter',()=>{ prevImg.src=r.dataset.img; if(window.gsap){gsap.to(prev,{opacity:1,duration:.35});} else {prev.style.opacity=1;} });
+  r.addEventListener('mouseleave',()=>{ if(window.gsap){gsap.to(prev,{opacity:0,duration:.3});} else {prev.style.opacity=0;} });
+});
+// Fix: scrolling slides the row out from under the cursor without firing mouseleave,
+// so the preview gets stuck following the mouse — always hide it on scroll / list exit.
+function hideArchivePreview(){ if(window.gsap){gsap.to(prev,{opacity:0,duration:.25});} else {prev.style.opacity=0;} }
+document.getElementById('archive-list').addEventListener('mouseleave',hideArchivePreview);
+addEventListener('scroll',hideArchivePreview,{passive:true});
+
+// Accordion FAQ height 0 -> scrollHeight
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click',()=>{
+    const a=q.nextElementSibling; const open=a.style.height && a.style.height!=='0px';
+    document.querySelectorAll('.faq-a').forEach(x=>x.style.height='0px');
+    if(!open){ a.style.height=a.scrollHeight+'px'; }
+  });
+});
+
+// Fake form
+document.getElementById('book-form').addEventListener('submit',e=>{e.preventDefault();document.getElementById('book-ok').classList.remove('hidden');});
+</script>
+</body>
+</html>
