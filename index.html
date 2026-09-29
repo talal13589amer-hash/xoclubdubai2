@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Dubai's most exclusive nightlife destination. World-class DJs, premium bottle service, and unforgettable nights in the heart of the city." />
 <title>XO Night Club Dubai | Live the Night</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0b'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial,sans-serif' font-size='19' font-weight='bold' fill='%23d7ff45' text-anchor='middle'%3EXO%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +21,10 @@
   --accent: #c24f20;
   --acid: #d7ff45;
   --line:rgba(11,11,11,.18);
+  /* Measured height of the fixed header bar. Anything that has to sit clear of it
+     (hero copy, sticky section heads) offsets from these instead of guessing. */
+  --hdr-h:76px;
+  --hdr-top:14px;
 }
 *{ -webkit-font-smoothing:antialiased; }
 html{ background:var(--paper); }
@@ -44,10 +49,14 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 #site-header{
   position:fixed; top:14px; left:14px; right:14px; z-index:90;
   mix-blend-mode:difference; color:#fff;
-  display:flex; justify-content:space-between; align-items:center;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
   padding:14px 20px; border:1px solid rgba(255,255,255,.25); border-radius:999px;
   transition:background .4s ease;
 }
+/* Nothing inside the bar may wrap — a wrapped logo/button doubled the header height
+   and collided with .projects-head (sticky top:95px) in the 768-900px range. */
+#site-header > *{ flex-wrap:nowrap; }
+#site-header a,#site-header span{ white-space:nowrap; }
 #site-header.is-scrolled{ background:rgba(12,12,12,.72); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); mix-blend-mode:normal; color:var(--paper); border-color:rgba(255,255,255,.12); }
 #cursor-label{
   position:fixed; top:0; left:0; width:82px; height:82px; border-radius:50%;
@@ -70,7 +79,12 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 .cross::after{ width:1.5px; height:14px; }
 
 /* ---------- HERO ---------- */
-.hero{ height:100svh; min-height:640px; background:#0b0b0b; position:relative; overflow:hidden; color:var(--paper); }
+/* --word-fs is the single source of truth for the wordmark size. "XOCLUBDUBAI" is
+   white-space:nowrap and measures ~6.25em wide, and .hero-word has 2vw of side padding,
+   so the largest size that can ever fit is 0.96vw / 6.25 ~= 15.3vw. 14.6vw keeps a
+   safety margin for webfont fallback metrics. Do not raise this without re-measuring
+   word.scrollWidth against the viewport, or the tail of "DUBAI" gets clipped. */
+.hero{ height:100svh; min-height:540px; background:#0b0b0b; position:relative; overflow:hidden; color:var(--paper); --word-fs:clamp(44px,14.6vw,290px); }
 .hero-media{ position:absolute; inset:0; overflow:hidden; }
 .hero-media video{ width:100%; height:100%; object-fit:cover; opacity:.85; }
 .hero-media::after{
@@ -81,10 +95,12 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 .line-mask{ overflow:hidden; display:block; }
 .line-mask > span{ display:block; }
 .hero-word{
-  position:absolute; left:2vw; right:2vw; bottom:-0.02em; z-index:4; line-height:.85; letter-spacing:-.04em;
-  font-size:clamp(76px,15.5vw,290px); font-weight:700; text-transform:uppercase; white-space:nowrap;
+  position:absolute; left:2vw; right:2vw; bottom:0; z-index:4; line-height:.85; letter-spacing:-.04em;
+  font-size:var(--word-fs); font-weight:700; text-transform:uppercase; white-space:nowrap;
 }
-.hero-meta{ position:absolute; bottom:24px; left:3vw; right:3vw; z-index:5; display:flex; justify-content:space-between; align-items:end; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+/* Anchored above the wordmark band (font-size * line-height) instead of on top of it. */
+.hero-meta{ position:absolute; bottom:calc(var(--word-fs) * .85 + 20px); left:3vw; right:3vw; z-index:5; display:flex; justify-content:space-between; align-items:end; gap:10px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+.hero-genres{ display:flex; gap:24px; flex-wrap:wrap; }
 
 /* ---------- INTRO ---------- */
 .intro-grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:1.5rem; }
@@ -99,7 +115,7 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 .ticker-item{ font-family:'Space Grotesk'; font-weight:700; font-size:clamp(20px,3vw,38px); text-transform:uppercase; white-space:nowrap; padding:0 1.2rem; display:flex; align-items:center; gap:2.4rem; }
 
 /* ---------- PROJECTS ---------- */
-.projects-head{ position:sticky; top:95px; z-index:20; mix-blend-mode:difference; color:#fff; }
+.projects-head{ position:sticky; top:calc(var(--hdr-top) + var(--hdr-h) + 19px); z-index:20; mix-blend-mode:difference; color:#fff; }
 .project{ display:grid; grid-template-columns:repeat(12,1fr); gap:1.5rem; align-items:end; margin-bottom:14vh; }
 .project:nth-child(odd) .project-media-wrap{ grid-column:1 / span 7; }
 .project:nth-child(odd) .project-copy{ grid-column:9 / span 4; }
@@ -113,6 +129,13 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
   padding:10px 16px; border-radius:999px; opacity:0; transform:translateY(8px); transition:.35s ease;
 }
 .project-media:hover::after{ opacity:1; transform:translateY(0); }
+.archive-row:active::before{ transform:scaleY(1); }
+@media(hover:none){
+  /* :hover never fires on touch, so the "Open night" pill stayed invisible while still
+     sitting on the image as a tap-intercepting box. Drop it where there is no hover. */
+  .project-media::after{ display:none; }
+  .cap-row:hover{ padding-left:0; }
+}
 
 /* ---------- EXPERIENCE ---------- */
 .cap-section{ background:#101010; color:var(--paper); }
@@ -149,6 +172,10 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 
 /* misc */
 .outline-text{ -webkit-text-stroke:1px rgba(239,238,233,.85); color:transparent; }
+/* footer contact links sat at 17px tall — well under the 44px touch minimum */
+.tappable{ display:block; padding:12px 0; }
+.btn-tap{ min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
+.faq-q,.cap-row,.archive-row{ -webkit-tap-highlight-color:transparent; }
 .marquee-css{ animation:marquee 18s linear infinite; }
 @keyframes marquee{ to{ transform:translateX(-50%);} }
 
@@ -167,20 +194,39 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
   .plan{ min-height:auto; }
   .plan:hover{ flex:1; }
   .hero-topcopy{ flex-direction:column; gap:1rem; }
+  /* the second column stacks under the first here, so right-aligning it just looks broken */
+  .hero-col-alt{ text-align:left; }
+  .hero-col-alt .line-mask > span{ justify-content:flex-start; }
   .cap-row .image{ display:none; }
   .archive-row{ grid-template-columns:50px 1fr auto; }
   .archive-row .hide-m{ display:none; }
   #archive-preview{ display:none; }
 }
 @media(max-width:640px){
+  :root{ --hdr-h:72px; }
   #site-header{ left:8px; right:8px; padding:12px 14px; }
-  .hero-word{ font-size:clamp(56px,18vw,120px); }
   .hero-meta{ flex-direction:column; align-items:start; gap:8px; }
+  /* the two genre/date spans were side-by-side with no wrap, crushing each to ~140px
+     and wrapping them over 3 lines. Stack them once the bar goes vertical. */
+  .hero-genres{ flex-direction:column; gap:6px; }
   .ticker-item{ font-size:22px; }
   .cap-statement{ font-size:32px; }
   .cinematic-card{ left:4vw; right:4vw; width:auto; }
   .archive-row{ grid-template-columns:1fr auto; padding:18px 8px; }
   .archive-row .hide-s{ display:none; }
+}
+/* Short viewports (landscape phones, small SE): the 19vh offset lands the hero copy
+   underneath the fixed header, so anchor it to the header instead and tighten it.
+   The hero is allowed to shrink to 100svh here — with the copy header-anchored and the
+   secondary column dropped, the wordmark/meta/topcopy stack still fits without overlap. */
+@media(max-height:700px){
+  .hero{ min-height:0; }
+  .hero-topcopy{ top:calc(var(--hdr-top) + var(--hdr-h) + 16px); }
+  .hero-topcopy .hero-line.grotesk{ font-size:19px; }
+}
+@media(max-height:480px){
+  .hero-col-alt{ display:none; }
+  .hero-topcopy .hero-line.grotesk{ font-size:17px; }
 }
 </style>
 </head>
@@ -204,24 +250,24 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 
 <!-- Floating WhatsApp -->
 <a href="https://wa.me/971585335470?text=Hi%20XOClubDubai%2C%20I%20want%20to%20book%20a%20table%20tonight." target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
-   class="btn-pill fixed bottom-5 right-5 z-[80] flex items-center gap-2 bg-[#d7ff45] text-black text-[12px] tracking-[.12em] uppercase font-semibold px-5 py-3 shadow-lg">
+   class="btn-pill fixed bottom-5 right-5 z-[80] flex items-center gap-2 bg-[#d7ff45] text-black text-[12px] tracking-[.12em] uppercase font-semibold px-5 py-3.5 shadow-lg">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4 0-.5.1-.7l.4-.5c.1-.2.1-.4 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.2-.7.3-.9.9-1.1 2.2-.2 3.9a11.6 11.6 0 0 0 4.5 4.2c1.7.8 2.4.9 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2 0-.1-.2-.1-.5-.2z"/></svg>
   WhatsApp Tables
 </a>
 
 <!-- HEADER -->
 <header id="site-header">
-  <a href="#top" class="grotesk font-bold tracking-tight text-lg">XO<span class="text-[#c24f20]">●</span>CLUB DUBAI</a>
-  <nav class="hidden md:flex gap-8 text-[12px] tracking-[.18em] uppercase">
-    <a href="#club" class="hover:opacity-60">Club</a>
-    <a href="#nights" class="hover:opacity-60">Nights</a>
-    <a href="#experience" class="hover:opacity-60">Experience</a>
-    <a href="#tables" class="hover:opacity-60">Tables</a>
-    <a href="#archive" class="hover:opacity-60">Archive</a>
+  <a href="#top" class="grotesk font-bold tracking-tight text-lg shrink-0 py-2">XO<span class="text-[#c24f20]">●</span>CLUB DUBAI</a>
+  <nav class="hidden md:flex gap-4 lg:gap-8 text-[11px] lg:text-[12px] tracking-[.14em] lg:tracking-[.18em] uppercase whitespace-nowrap shrink">
+    <a href="#club" class="btn-tap hover:opacity-60">Club</a>
+    <a href="#nights" class="btn-tap hover:opacity-60">Nights</a>
+    <a href="#experience" class="btn-tap hover:opacity-60">Experience</a>
+    <a href="#tables" class="btn-tap hover:opacity-60">Tables</a>
+    <a href="#archive" class="btn-tap hover:opacity-60">Archive</a>
   </nav>
-  <div class="flex items-center gap-3">
-    <span class="hidden sm:inline text-[11px] tracking-[.18em] uppercase opacity-80">Open Tonight 11PM–4AM</span>
-    <a href="#tables" class="btn-pill bg-[#d7ff45] text-black text-[12px] tracking-[.12em] uppercase px-5 py-2.5 font-semibold" style="mix-blend-mode:normal">Book Table</a>
+  <div class="flex items-center gap-3 shrink-0">
+    <span class="hidden lg:inline text-[11px] tracking-[.18em] uppercase opacity-80">Open Tonight 11PM–4AM</span>
+    <a href="#tables" class="btn-pill shrink-0 bg-[#d7ff45] text-black text-[12px] tracking-[.12em] uppercase px-5 py-3.5 font-semibold" style="mix-blend-mode:normal">Book Table</a>
   </div>
 </header>
 
@@ -236,7 +282,7 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
       <div class="line-mask"><span class="hero-line text-[12px] tracking-[.22em] uppercase text-[#d7ff45]">Marasi Drive — After-dark institution</span></div>
       <div class="line-mask mt-3"><span class="hero-line grotesk text-2xl md:text-3xl leading-tight">Sound, light & late nights. Dubai's room for hip-hop, Afro & house.</span></div>
     </div>
-    <div class="text-right">
+    <div class="text-right hero-col-alt">
       <div class="line-mask"><span class="hero-line text-[12px] tracking-[.22em] uppercase opacity-80">Est. Marasi Drive — Thu to Sun</span></div>
       <div class="line-mask"><span class="hero-line text-[12px] tracking-[.22em] uppercase opacity-80">11PM — 4AM / 21+</span></div>
       <div class="line-mask mt-2"><span class="hero-line flex justify-end items-center gap-2 text-[12px] tracking-[.22em] uppercase"><span class="cross"></span> Scroll to enter</span></div>
@@ -245,7 +291,7 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
   <h1 class="hero-word grotesk">XOCLUB<span class="outline-text">DUBAI</span></h1>
   <div class="hero-meta">
     <div>N 25.1857° — E 55.2658°</div>
-    <div class="flex gap-6"><span>Hip-Hop / Afro / Amapiano / House</span><span class="text-[#d7ff45]">● This Week: Tamer Hosny — Thu</span></div>
+    <div class="hero-genres"><span>Hip-Hop / Afro / Amapiano / House</span><span class="text-[#d7ff45]">● This Week: Tamer Hosny — Thu</span></div>
   </div>
 </section>
 
@@ -267,7 +313,7 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
         <div class="stats-mini"><div class="grotesk text-5xl font-bold"><span data-count="320">0</span>+</div><div class="text-[11px] tracking-[.2em] uppercase mt-1" style="color:var(--muted)">Nights / Year</div></div>
         <div class="stats-mini"><div class="grotesk text-5xl font-bold"><span data-count="120">0</span>+</div><div class="text-[11px] tracking-[.2em] uppercase mt-1" style="color:var(--muted)">Guest DJs</div></div>
       </div>
-      <a href="#nights" class="btn-pill inline-flex mt-10 px-7 py-3 bg-[#0b0b0b] text-[#efeee9] text-[12px] tracking-[.15em] uppercase">Explore the nights</a>
+      <a href="#nights" class="btn-pill btn-tap mt-10 px-7 py-3.5 bg-[#0b0b0b] text-[#efeee9] text-[12px] tracking-[.15em] uppercase">Explore the nights</a>
     </div>
     <div class="col-span-5 flex flex-col gap-4">
       <div class="intro-portrait aspect-[3/4]"><img class="w-full h-full object-cover" src="IMG_6944.JPG" alt="XO Club crowd"></div>
@@ -351,17 +397,17 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
     <div class="plan">
       <div><div class="text-[12px] tracking-[.2em] uppercase opacity-60">01 / Entry</div><h3 class="grotesk text-3xl font-bold mt-2 uppercase">General<br>Entry</h3><div class="grotesk text-5xl font-bold mt-6">150 <span class="text-lg">AED</span></div></div>
       <ul class="text-sm opacity-70 space-y-2 mt-6"><li>— Doors before 1AM</li><li>— Main room access</li><li>— 1 welcome drink</li></ul>
-      <a href="#contact" class="btn-pill mt-8 text-center px-6 py-3 bg-[#0b0b0b] text-white text-[12px] tracking-[.15em] uppercase">Get Tickets</a>
+      <a href="#contact" class="btn-pill btn-tap mt-8 text-center px-6 py-3.5 bg-[#0b0b0b] text-white text-[12px] tracking-[.15em] uppercase">Get Tickets</a>
     </div>
     <div class="plan">
       <div><div class="text-[12px] tracking-[.2em] uppercase opacity-60">02 / Table</div><h3 class="grotesk text-3xl font-bold mt-2 uppercase">VIP<br>Table</h3><div class="grotesk text-5xl font-bold mt-6">2K <span class="text-lg">AED min.</span></div></div>
       <ul class="text-sm opacity-70 space-y-2 mt-6"><li>— Up to 6 guests</li><li>— Priority entry + host</li><li>— Premium bottle menu</li></ul>
-      <a href="#contact" class="btn-pill mt-8 text-center px-6 py-3 border border-black text-[12px] tracking-[.15em] uppercase">Reserve Table</a>
+      <a href="#contact" class="btn-pill btn-tap mt-8 text-center px-6 py-3.5 border border-black text-[12px] tracking-[.15em] uppercase">Reserve Table</a>
     </div>
     <div class="plan dark-card">
       <div><div class="text-[12px] tracking-[.2em] uppercase text-[#d7ff45]">03 / Full Experience ★</div><h3 class="grotesk text-3xl font-bold mt-2 uppercase">XO<br>Suite</h3><div class="grotesk text-5xl font-bold mt-6">8K <span class="text-lg">AED min.</span></div></div>
       <ul class="text-sm opacity-70 space-y-2 mt-6"><li>— 12 guests, sky deck</li><li>— Dedicated server + security</li><li>— Chauffeured arrival</li></ul>
-      <a href="#contact" class="btn-pill mt-8 text-center px-6 py-3 bg-[#d7ff45] text-black font-semibold text-[12px] tracking-[.15em] uppercase">Book Suite</a>
+      <a href="#contact" class="btn-pill btn-tap mt-8 text-center px-6 py-3.5 bg-[#d7ff45] text-black font-semibold text-[12px] tracking-[.15em] uppercase">Book Suite</a>
     </div>
   </div>
 
@@ -402,8 +448,8 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
     <h3 class="grotesk text-4xl font-bold uppercase leading-none mt-3">See you<br>on the floor.</h3>
     <p class="text-sm opacity-70 mt-4">Doors 11PM. Tables held till 1AM. Walk-ins on availability.</p>
     <div class="flex gap-3 mt-6">
-      <a href="#contact" class="btn-pill flex-1 text-center px-6 py-3 bg-[#0b0b0b] text-white text-[12px] tracking-[.15em] uppercase">Book Now</a>
-      <a href="#top" class="btn-pill px-6 py-3 border border-black text-[12px] tracking-[.15em] uppercase">↑ Top</a>
+      <a href="#contact" class="btn-pill btn-tap flex-1 text-center px-6 py-3.5 bg-[#0b0b0b] text-white text-[12px] tracking-[.15em] uppercase">Book Now</a>
+      <a href="#top" class="btn-pill btn-tap px-6 py-3.5 border border-black text-[12px] tracking-[.15em] uppercase">↑ Top</a>
     </div>
   </div>
   <div class="absolute bottom-6 left-[3vw] right-[3vw] flex justify-between text-[#efeee9] text-[11px] tracking-[.22em] uppercase z-[6]"><span>XO — Marasi Drive</span><span>21+ / 11PM–4AM</span></div>
@@ -414,10 +460,16 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
   <div class="grotesk font-bold uppercase leading-[.85] text-[clamp(54px,11vw,190px)]">Let's go<br><span class="text-[#d7ff45]">out tonight</span></div>
   <div class="grid md:grid-cols-4 gap-8 mt-12 text-sm">
     <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Visit</div><p>XOClubDubai<br>Marasi Drive, Business Bay<br>Valet after 10:30PM</p></div>
-    <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Contact</div><p><a href="tel:+971585335470" class="hover:text-[#d7ff45]">+971 58 533 5470</a><br><a href="https://wa.me/971585335470" target="_blank" rel="noopener" class="text-[#d7ff45] hover:underline">WhatsApp us ↗</a><br><a href="mailto:ayman.mohamed.1608@gmail.com" class="hover:text-[#d7ff45]">ayman.mohamed.1608@gmail.com</a><br><a href="https://www.instagram.com/xo.club.dubai" target="_blank" rel="noopener" class="hover:text-[#d7ff45]">@xo.club.dubai</a><br><a href="https://www.tiktok.com/@xoclubdubaiofficial" target="_blank" rel="noopener" class="hover:text-[#d7ff45]">@xoclubdubaiofficial</a></p></div>
+    <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Contact</div>
+      <a href="tel:+971585335470" class="tappable hover:text-[#d7ff45]">+971 58 533 5470</a>
+      <a href="https://wa.me/971585335470" target="_blank" rel="noopener" class="tappable text-[#d7ff45] hover:underline">WhatsApp us ↗</a>
+      <a href="mailto:ayman.mohamed.1608@gmail.com" class="tappable hover:text-[#d7ff45]">ayman.mohamed.1608@gmail.com</a>
+      <a href="https://www.instagram.com/xo.club.dubai" target="_blank" rel="noopener" class="tappable hover:text-[#d7ff45]">@xo.club.dubai</a>
+      <a href="https://www.tiktok.com/@xoclubdubaiofficial" target="_blank" rel="noopener" class="tappable hover:text-[#d7ff45]">@xoclubdubaiofficial</a>
+    </div>
     <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Hours</div><p>Thu–Sun / 11PM–4AM<br>21+ ID required<br>Dress smart</p></div>
     <div><div class="text-[11px] tracking-[.22em] uppercase opacity-50 mb-3">Table request</div>
-      <form id="book-form" class="flex flex-col gap-2"><input required placeholder="Name" class="bg-transparent border border-white/20 rounded-full px-4 py-2.5 outline-none focus:border-[#d7ff45]"><input required placeholder="WhatsApp" class="bg-transparent border border-white/20 rounded-full px-4 py-2.5 outline-none focus:border-[#d7ff45]"><button class="btn-pill bg-[#d7ff45] text-black font-semibold text-[12px] tracking-[.15em] uppercase px-4 py-3">Request Callback</button><span id="book-ok" class="text-[#d7ff45] text-xs hidden">Received — we reply within 15 min after 8PM.</span></form>
+      <form id="book-form" class="flex flex-col gap-2"><input required placeholder="Name" class="bg-transparent border border-white/20 rounded-full px-4 py-3.5 outline-none focus:border-[#d7ff45] min-h-[44px]"><input required placeholder="WhatsApp" class="bg-transparent border border-white/20 rounded-full px-4 py-3.5 outline-none focus:border-[#d7ff45] min-h-[44px]"><button class="btn-pill bg-[#d7ff45] text-black font-semibold text-[12px] tracking-[.15em] uppercase px-4 py-3">Request Callback</button><span id="book-ok" class="text-[#d7ff45] text-xs hidden">Received — we reply within 15 min after 8PM.</span></form>
     </div>
   </div>
   <div class="flex justify-between mt-14 pt-6 border-t border-white/15 text-[11px] tracking-[.2em] uppercase opacity-60"><span>© 2026 XOClubDubai</span><span>Business Bay — 21+</span></div>
@@ -425,6 +477,10 @@ h1,h2,h3,h4,.grotesk{ font-family:'Space Grotesk',sans-serif; }
 </main>
 
 <script>
+// Pointer-follow effects are dead weight on touch (mousemove never fires) and each cost
+// a rAF tick per frame forever, so only run them on real pointer devices.
+const FINE_POINTER = matchMedia('(hover:hover) and (pointer:fine)').matches;
+
 // Safety net: never trap the user on the preloader (fires even if CDNs fail)
 setTimeout(function(){
   var pre=document.getElementById('preloader');
@@ -444,11 +500,17 @@ if(window.Lenis){
   gsap.ticker.lagSmoothing(0);
 }
 
-// Anchor links via lenis
+// Anchor links via lenis (works with or without lenis)
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
     const id=a.getAttribute('href');
-    if(id.length>1 && document.querySelector(id)){ e.preventDefault(); if(lenis){ lenis.scrollTo(id,{offset:-70}); } else { document.querySelector(id).scrollIntoView({behavior:'smooth'}); } }
+    const tgt = id && id.length>1 && document.querySelector(id);
+    if(!tgt) return;
+    e.preventDefault();
+    if(window.Lenis && typeof lenis !== 'undefined' && lenis){
+      try{ lenis.scrollTo(id,{offset:-70}); return; }catch(x){}
+    }
+    tgt.scrollIntoView({behavior:'smooth'});
   });
 });
 
@@ -515,13 +577,15 @@ gsap.fromTo('#cinematic-card',{rotation:18,xPercent:120,opacity:0},{rotation:0,x
 
 // Cursor lerp cx += (mx-cx)*.14
 const cursor=document.getElementById('cursor-label');
-let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
-addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-(function loop(){ cx+=(mx-cx)*.14; cy+=(my-cy)*.14; cursor.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`; requestAnimationFrame(loop); })();
-document.querySelectorAll('[data-cursor]').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{cursor.textContent=el.dataset.cursor; gsap.to(cursor,{opacity:1,scale:1,duration:.3});});
-  el.addEventListener('mouseleave',()=>gsap.to(cursor,{opacity:0,scale:.8,duration:.3}));
-});
+if(FINE_POINTER && cursor){
+  let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function loop(){ cx+=(mx-cx)*.14; cy+=(my-cy)*.14; cursor.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`; requestAnimationFrame(loop); })();
+  document.querySelectorAll('[data-cursor]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.textContent=el.dataset.cursor; gsap.to(cursor,{opacity:1,scale:1,duration:.3});});
+    el.addEventListener('mouseleave',()=>gsap.to(cursor,{opacity:0,scale:.8,duration:.3}));
+  });
+}
 
 } // end else (gsap available)
 
@@ -537,18 +601,22 @@ document.querySelectorAll('video[data-aura-video-preset="loop-in-view"]').forEac
 
 // Archive preview fixed image update + opacity
 const prev=document.getElementById('archive-preview'), prevImg=document.getElementById('archive-preview-img');
-let px=0,py=0,tx=0,ty=0;
-addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;});
-(function ploop(){ px+=(tx-px)*.12; py+=(ty-py)*.12; prev.style.transform=`translate(${px}px,${py}px) translate(-50%,-50%)`; requestAnimationFrame(ploop); })();
-document.querySelectorAll('.archive-row').forEach(r=>{
-  r.addEventListener('mouseenter',()=>{ prevImg.src=r.dataset.img; if(window.gsap){gsap.to(prev,{opacity:1,duration:.35});} else {prev.style.opacity=1;} });
-  r.addEventListener('mouseleave',()=>{ if(window.gsap){gsap.to(prev,{opacity:0,duration:.3});} else {prev.style.opacity=0;} });
-});
-// Fix: scrolling slides the row out from under the cursor without firing mouseleave,
-// so the preview gets stuck following the mouse — always hide it on scroll / list exit.
-function hideArchivePreview(){ if(window.gsap){gsap.to(prev,{opacity:0,duration:.25});} else {prev.style.opacity=0;} }
-document.getElementById('archive-list').addEventListener('mouseleave',hideArchivePreview);
-addEventListener('scroll',hideArchivePreview,{passive:true});
+// This block sits outside the gsap guard above, so it must check for gsap itself —
+// throwing here would abort the script and take the FAQ/form handlers below with it.
+if(prev && FINE_POINTER && window.gsap){
+  let px=0,py=0,tx=0,ty=0;
+  addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;});
+  (function ploop(){ px+=(tx-px)*.12; py+=(ty-py)*.12; prev.style.transform=`translate(${px}px,${py}px) translate(-50%,-50%)`; requestAnimationFrame(ploop); })();
+  document.querySelectorAll('.archive-row').forEach(r=>{
+    r.addEventListener('mouseenter',()=>{ prevImg.src=r.dataset.img; gsap.to(prev,{opacity:1,duration:.35}); });
+    r.addEventListener('mouseleave',()=>gsap.to(prev,{opacity:0,duration:.3}));
+  });
+  // Fix: scrolling slides the row out from under the cursor without firing mouseleave,
+  // so the preview gets stuck following the mouse — always hide it on scroll / list exit.
+  const hideArchivePreview=()=>gsap.to(prev,{opacity:0,duration:.25});
+  document.getElementById('archive-list').addEventListener('mouseleave',hideArchivePreview);
+  addEventListener('scroll',hideArchivePreview,{passive:true});
+}
 
 // Accordion FAQ height 0 -> scrollHeight
 document.querySelectorAll('.faq-q').forEach(q=>{
